@@ -1,5 +1,5 @@
 from flask import Flask,render_template,url_for,redirect
-from blogFlask import app
+from blogFlask import app,bcrypt,db
 from blogFlask.forms import RegistrationForm,LoginForm 
 from blogFlask.models import User,Post
 
@@ -18,6 +18,8 @@ posts = [
     }
 ]
 
+db.create_all()
+
 @app.route("/")
 @app.route("/home")
 def home():
@@ -30,16 +32,22 @@ def about():
 @app.route("/login",methods=['GET','POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
-        if form.email.data=='anish@gmail.com' and form.password.data=='anish':
-            return redirect(url_for('home'))
-        else:
-            return redirect(url_for('login'))
+    # if form.validate_on_submit():
+    #     if form.email.data=='anish@gmail.com' and form.password.data=='anish':
+    #         return redirect(url_for('home'))
+    #     else:
+    #         return redirect(url_for('login'))
+    # add queries
     return render_template('login.html',title = 'Login',form = form)
 
 @app.route("/register",methods = ['GET','POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        return redirect(url_for('home'))
+        hashed_pwd = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data,email=form.email.data,password=hashed_pwd)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))
     return render_template('register.html',title = 'Register',form = form)
+
