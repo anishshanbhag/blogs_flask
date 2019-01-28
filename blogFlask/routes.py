@@ -1,5 +1,7 @@
-
-
+from flask import Flask,render_template,url_for,redirect
+from blogFlask import app
+from blogFlask.forms import RegistrationForm,LoginForm 
+from blogFlask.models import User,Post
 
 posts = [
     {
@@ -41,6 +43,3 @@ def register():
     if form.validate_on_submit():
         return redirect(url_for('home'))
     return render_template('register.html',title = 'Register',form = form)
-
-if __name__=='__main__':
-    app.run(debug=True)
